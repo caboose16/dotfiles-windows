@@ -1,15 +1,15 @@
 # Modules
-Import-Module git-aliases -DisableNameChecking
-Import-Module posh-git
 Import-Module z
+if ($null -ne (Get-Command git*)) {
+   Import-Module git-aliases -DisableNameChecking
+   function gbd {
+      git branch -d 
+   }
+   Import-Module posh-git
+}
 
 # PSReadLine
 Set-PSReadLineOption -PredictionSource History
-
-# Git Aliases
-function gbd {
-   git branch -d 
-}
 
 # nvim
 Set-Alias -Name vim -Value nvim

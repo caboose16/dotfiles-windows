@@ -85,6 +85,9 @@ if (Test-Path  "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Co
 if (Test-Path "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\devenv.exe" ) {
    Set-Alias -Name vs19 -Value "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\devenv.exe" 
 }
+if (Test-Path "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\devenv.exe" ) {
+   Set-Alias -Name vs22 -Value "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\devenv.exe" 
+}
 
 Set-Alias -Name e -Value explorer.exe
 Set-Alias -Name c -Value code

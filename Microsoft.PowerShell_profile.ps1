@@ -7,6 +7,8 @@ if ($null -ne (Get-Command git*)) {
    }
    Import-Module posh-git
 }
+Import-Module oh-my-posh
+Set-PoshPrompt powerlevel10k_modern
 
 # PSReadLine
 Set-PSReadLineOption -PredictionSource History
@@ -64,11 +66,16 @@ Function Zip {
 
 # Rider Alias
 function rider {
-   $RiderDirectory =  Get-ChildItem -Directory -Path "C:\Users\sam.santana\AppData\Local\JetBrains\Installations" Rider* `
+   $RiderDirectory = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\JetBrains" 
+   if (!(Test-Path $RiderDirectory)) {
+      Write-Host "Could not find rider exe in $RiderDirectory";
+      return;
+   }
+   $RiderExe =  Get-ChildItem -Path "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\JetBrains" *Rider* `
       | Select-Object -last 1 | Select-Object -ExpandProperty FullName
-   $RiderExe = Join-Path -Path $RiderDirectory -ChildPath "\bin\rider64.exe"
    if (Test-Path $RiderExe) {
-      & $RiderExe @args
+      echo $RiderExe
+      &"$RiderExe" @args
    }
    else {
       Write-Error Could not find executable at $RiderExe

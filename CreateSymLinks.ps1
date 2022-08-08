@@ -10,6 +10,7 @@ function New-SymLink {
 }
 
 $symLinks = @(
+    # powershell links
     [System.Tuple]::Create(".\Microsoft.PowerShell_profile.ps1","~\Documents\PowerShell\Microsoft.PowerShell_profile.ps1")
 )
 

@@ -19,6 +19,8 @@ $symLinks = @(
     [System.Tuple]::Create(".\mpv\shaders","$env:APPDATA\mpv.net\shaders")
 )
 
+Push-Location $PsScriptRoot
 foreach ($link in $symLinks) {
     New-SymLink -Source $link.Item1 -Destination $link.Item2
 }
+Pop-Location

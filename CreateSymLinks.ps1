@@ -1,4 +1,10 @@
 #Requires -RunAsAdministrator
+[CmdletBinding()]
+param (
+    [Parameter(HelpMessage="Force delete existing destination")]
+    [Switch]
+    $Force
+)
 
 function New-SymLink {
     param (
@@ -21,6 +27,27 @@ $symLinks = @(
 
 Push-Location $PsScriptRoot
 foreach ($link in $symLinks) {
+    $source = $link.Item1
+    $destination = $link.Item2
+
+    if (Test-Path $destination) {
+        $msg = "Destination exists for: $destination.`nDelete? y/n"
+        $userInput = ""
+        if ($Force) {
+            $userInput = "y"
+        }
+
+        while ($userInput -notmatch "[yn]" ) {
+            $userInput = Read-Host $msg 
+        }
+
+        if ($userInput -eq "y") {
+            Remove-Item -Recurse $destination
+        }
+        else {
+            Write-Warning "Did not delete existing destination: $destination"
+        }
+    }
     New-SymLink -Source $link.Item1 -Destination $link.Item2
 }
 Pop-Location

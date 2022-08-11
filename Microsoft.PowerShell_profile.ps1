@@ -80,7 +80,12 @@ if (Test-Path "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\I
 
 Set-Alias -Name e -Value explorer.exe
 
-function touch {       if ((Test-Path -Path ($args[0])) -eq $false) {           set-content -Path ($args[0]) -Value ($null)       }   }
+function touch {
+   if ((Test-Path -Path ($args[0])) -eq $false) {
+      set-content -Path ($args[0]) -Value ($null)
+   }
+}
+
 function Copy-Pwd {
    Get-Location | Select-Object -ExpandProperty Path | Set-Clipboard
 }

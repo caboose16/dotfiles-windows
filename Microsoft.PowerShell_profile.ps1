@@ -86,7 +86,7 @@ function touch {
    }
 }
 
-function Copy-Pwd {
+function Copy-WorkingDir {
    Get-Location | Select-Object -ExpandProperty Path | Set-Clipboard
 }
 

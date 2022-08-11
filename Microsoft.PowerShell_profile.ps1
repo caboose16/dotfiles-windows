@@ -126,5 +126,3 @@ function PsAdmin {
       Start-Process powershell.exe -Verb runAs -WorkingDirectory .
    }
 }
-
-$Env:POWERSHELL_UPDATECHECK = 'LTS'

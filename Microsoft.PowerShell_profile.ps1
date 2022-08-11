@@ -64,24 +64,6 @@ Function Zip {
       }
    }
 
-# Rider Alias
-function rider {
-   $RiderDirectory = "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\JetBrains" 
-   if (!(Test-Path $RiderDirectory)) {
-      Write-Host "Could not find rider exe in $RiderDirectory";
-      return;
-   }
-   $RiderExe =  Get-ChildItem -Path "C:\ProgramData\Microsoft\Windows\Start Menu\Programs\JetBrains" *Rider* `
-      | Select-Object -last 1 | Select-Object -ExpandProperty FullName
-   if (Test-Path $RiderExe) {
-      echo $RiderExe
-      &"$RiderExe" @args
-   }
-   else {
-      Write-Error Could not find executable at $RiderExe
-   }
-}
-
 # Windows Aliases
 $HostsFile = "c:\windows\system32\drivers\etc\hosts"
 

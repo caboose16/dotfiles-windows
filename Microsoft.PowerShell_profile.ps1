@@ -79,8 +79,6 @@ if (Test-Path "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\I
 }
 
 Set-Alias -Name e -Value explorer.exe
-Set-Alias -Name c -Value code
-Set-Alias -Name dn -Value dotnet
 
 function touch {       if ((Test-Path -Path ($args[0])) -eq $false) {           set-content -Path ($args[0]) -Value ($null)       }   }
 function Copy-Pwd {

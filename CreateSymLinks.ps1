@@ -20,6 +20,10 @@ $symLinks = @(
     [System.Tuple]::Create(".\Microsoft.PowerShell_profile.ps1","~\Documents\PowerShell\Microsoft.PowerShell_profile.ps1")
 
     # mpv links
+    [System.Tuple]::Create(".\mpv\mpv.conf","$env:APPDATA\mpv\mpv.conf")
+    [System.Tuple]::Create(".\mpv\input.conf","$env:APPDATA\mpv\input.conf")
+    [System.Tuple]::Create(".\mpv\shaders","$env:APPDATA\mpv\shaders")
+    # mpv.net links
     [System.Tuple]::Create(".\mpv\mpv.conf","$env:APPDATA\mpv.net\mpv.conf")
     [System.Tuple]::Create(".\mpv\input.conf","$env:APPDATA\mpv.net\input.conf")
     [System.Tuple]::Create(".\mpv\shaders","$env:APPDATA\mpv.net\shaders")

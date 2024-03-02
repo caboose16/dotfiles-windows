@@ -38,13 +38,6 @@ if (Test-Path "$PsScriptRoot\PB.Powershell_profile.ps1") {
    .  "$PsScriptRoot\PB.Powershell_profile.ps1"
 }
 
-function fsi {
-   param (
-      $file
-   )
-   dotnet fsi $file
-}
-
 function Unzip {
    param (
       [string]$FolderPath

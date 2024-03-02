@@ -24,7 +24,9 @@ if ($null -ne (Get-InstalledModule oh-my-posh -ErrorAction Ignore)) {
 Set-PSReadLineOption -PredictionSource History
 
 # nvim
-Set-Alias -Name vim -Value nvim
+if (Get-Command -Name "nvim" -ErrorAction SilentlyContinue) {
+   Set-Alias -Name vim -Value nvim
+}
 
 # Chocolatey profile
 $env:ChocolateyInstall = "C:\ProgramData\chocolatey"

@@ -44,6 +44,7 @@ function Unzip {
    )
    7z.exe x $FolderPath
 }
+
 Function Zip {
       param (
          [string]$InputPath,
@@ -122,13 +123,4 @@ function New-Guid {
    Set-Clipboard $guid
    Write-Host "Added New Guid to Clipboard: " -NoNewline
    Write-Host $guid -ForegroundColor Blue
-}
-
-function PsAdmin {
-   if ($null -ne (Get-Command pwsh.exe)) {
-      Start-Process pwsh.exe -Verb runAs -WorkingDirectory .
-   }
-   else {
-      Start-Process powershell.exe -Verb runAs -WorkingDirectory .
-   }
 }

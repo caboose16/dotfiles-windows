@@ -1,14 +1,24 @@
 # Modules
-Import-Module z
-if ($null -ne (Get-Command git*)) {
-   Import-Module git-aliases -DisableNameChecking
+if ($null -ne (Get-InstalledModule z -ErrorAction Ignore)) {
+   Import-Module z
+}
+
+if ($null -ne (Get-Command git*) ) {
+   if ($null -ne (Get-InstalledModule git-aliases -ErrorAction Ignore)) {
+      Import-Module git-aliases -DisableNameChecking
+   }
    function gbd {
       git branch -d 
    }
-   Import-Module posh-git
+   if ($null -ne (Get-InstalledModule posh-git -ErrorAction Ignore)) {
+      Import-Module posh-git
+   }
 }
-Import-Module oh-my-posh
-Set-PoshPrompt powerlevel10k_modern
+
+if ($null -ne (Get-InstalledModule oh-my-posh -ErrorAction Ignore)) {
+   Import-Module oh-my-posh
+   Set-PoshPrompt powerlevel10k_modern
+}
 
 # PSReadLine
 Set-PSReadLineOption -PredictionSource History

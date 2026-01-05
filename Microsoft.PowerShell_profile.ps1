@@ -1,58 +1,127 @@
-# Modules
-if ($null -ne (Get-InstalledModule z -ErrorAction Ignore)) {
-   Import-Module z
+
+# --- Starship (Cached for Speed) ---
+$starshipCache = Join-Path $env:TEMP "starship_init.ps1"
+if (-not (Test-Path $starshipCache)) {
+    starship init powershell --print-full-init | Out-File $starshipCache -Encoding utf8 -Force
+}
+. $starshipCache
+
+# --- Zoxide (Cached for Speed) ---
+$zoxideCache = Join-Path $env:TEMP "zoxide_init.ps1"
+if (-not (Test-Path $zoxideCache)) {
+    zoxide init powershell --cmd z --hook pwd | Out-File $zoxideCache -Encoding utf8 -Force
+}
+. $zoxideCache
+
+# Starship and Zoxide Cache can be deleted with:
+# Remove-Item $env:TEMP\*_init.ps1
+
+# --- Async Background Config (PSReadLine + FZF) ---
+# We bundle these together because they both touch the input line.
+# Loading them in a background job keeps the prompt instant.
+$opts = {
+    # 1. Configure PSReadLine
+    # We check if it is available and force import it to apply settings
+    if (Get-Module -ListAvailable PSReadLine) {
+        Import-Module PSReadLine -ErrorAction SilentlyContinue
+        
+        # Apply your settings
+        Set-PSReadLineOption -PredictionSource History
+        Set-PSReadLineOption -PredictionViewStyle InlineView
+        Set-PSReadLineOption -Colors @{ InlinePrediction = '#8a8a8a' }
+        Set-PSReadLineOption -EditMode Emacs
+    }
+
+    # 2. Configure FZF (Only if installed)
+    if (Get-Command fzf -ErrorAction SilentlyContinue) {
+        
+        # Ctrl+R -> Lazy History Search
+        Set-PSReadLineKeyHandler -Chord Ctrl+r -ScriptBlock {
+            param($key, $arg)
+            # Only import if it's missing (First run only)
+            if (-not (Get-Module PSFzf)) {
+                Import-Module PSFzf -Scope CurrentUser -WarningAction SilentlyContinue -ErrorAction SilentlyContinue
+            }
+            # Run the command
+            if (Get-Command Invoke-FzfReverseHistorySearch -ErrorAction SilentlyContinue) {
+                Invoke-FzfReverseHistorySearch
+            }
+        }
+
+        # Ctrl+T -> Lazy Path Select
+        Set-PSReadLineKeyHandler -Chord Ctrl+t -ScriptBlock {
+            param($key, $arg)
+            if (-not (Get-Module PSFzf)) {
+                Import-Module PSFzf -Scope CurrentUser -WarningAction SilentlyContinue -ErrorAction SilentlyContinue
+            }
+            if (Get-Command Invoke-FzfSelectPath -ErrorAction SilentlyContinue) {
+                Invoke-FzfSelectPath
+            }
+        }
+    }
 }
 
-if ($null -ne (Get-Command git*) ) {
-   if ($null -ne (Get-InstalledModule git-aliases -ErrorAction Ignore)) {
-      Import-Module git-aliases -DisableNameChecking
-   }
-   function gbd {
-      git branch -d 
-   }
-   if ($null -ne (Get-InstalledModule posh-git -ErrorAction Ignore)) {
-      Import-Module posh-git
-   }
+# Run this configuration immediately in the background
+$opts.Invoke()
+
+# --- git aliases ---
+$Global:GitLoaded = $false
+function git {
+    # 1. Capture args IMMEDIATELY to protect them from scope deletion
+    $cmdArgs = $args
+
+    if (-not $Global:GitLoaded) {
+        # Import posh-git silently
+        Import-Module posh-git -WarningAction SilentlyContinue -ErrorAction SilentlyContinue | Out-Null
+        $Global:GitLoaded = $true
+        
+        # Remove this wrapper so future calls go straight to git.exe
+        Remove-Item Function:\git -ErrorAction SilentlyContinue
+    }
+    
+    # 2. Run git with the safely captured arguments
+    & git.exe @cmdArgs
 }
 
-if ($null -ne (Get-InstalledModule oh-my-posh -ErrorAction Ignore)) {
-   Import-Module oh-my-posh
-   Set-PoshPrompt powerlevel10k_modern
+function gs { git status $args }
+function ga { git add $args }
+function gc { git commit -v $args }
+function gco { git checkout $args }
+function gp { git push $args }
+function gd { git diff $args }
+function gl { git pull $args }
+function gsta { git stash add $args }
+function gstp { git stash pop $args }
+function gstl { git stash list $args }
+function glo { git log --oneline --decorate $args }
+function glog { git log --oneline --decorate --graph $args }
+
+function gpsup {
+    $branch = git branch --show-current
+    if ($branch) {
+      Write-Host "🚀 Pushing '$branch' to origin..." -ForegroundColor Cyan
+      git push --set-upstream origin $branch
+    } else {
+      Write-Error "Not in a git repository or detached HEAD."
+    }
 }
 
-# PSReadLine
-Set-PSReadLineOption -PredictionSource History
+# --- Utility Functions ---
+function cat { if (Get-Command bat -EA 0) { bat $args } else { Get-Content $args } }
+function e { explorer.exe $args }
+# Set-Location Aliases
+function .. { Set-Location ..  }
+function ... { Set-Location ../..  }
 
-# nvim
-if (Get-Command -Name "nvim" -ErrorAction SilentlyContinue) {
-   Set-Alias -Name vim -Value nvim
-}
-
-# Chocolatey profile
-$env:ChocolateyInstall = "C:\ProgramData\chocolatey"
-$ChocolateyProfile = "$env:ChocolateyInstall\helpers\chocolateyProfile.psm1"
-if (Test-Path($ChocolateyProfile)) {
-  Import-Module "$ChocolateyProfile"
-}
-
-# Planet Bingo Profile
-if (Test-Path "$PsScriptRoot\PB.Powershell_profile.ps1") {
-   .  "$PsScriptRoot\PB.Powershell_profile.ps1"
-}
-
-function Unzip {
-   param (
-      [string]$FolderPath
-   )
-   7z.exe x $FolderPath
-}
-
+function Unzip { param ( [string]$FolderPath) 7z.exe x $FolderPath }
 Function Zip {
-      param (
+      param ( 
          [string]$InputPath,
-         [string]$OutputFile
-      )
-      if (-not (Test-Path $InputPath)) { Write-Error "Not a valid input path"; return; }
+         [string]$OutputFile)
+      if (-not (Test-Path $InputPath)) {
+         Write-Error "Not a valid input path";
+         return;
+      }
       $isFolder = Test-Path -Path $InputPath -PathType Container
       if ([string]::IsNullOrWhiteSpace($OutputFile)){
          if ($IsFolder){ $OutputFile = $InputPath.Trim().TrimEnd('\') + ".zip" }
@@ -70,39 +139,10 @@ Function Zip {
       }
    }
 
-# Windows Aliases
-$HostsFile = "c:\windows\system32\drivers\etc\hosts"
-
-# Visual Studio Aliases
-if (Test-Path  "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\devenv.exe") {
-   Set-Alias -Name vs17 -Value "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\devenv.exe"
-}
-if (Test-Path "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\devenv.exe" ) {
-   Set-Alias -Name vs19 -Value "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\devenv.exe" 
-}
-if (Test-Path "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\devenv.exe" ) {
-   Set-Alias -Name vs22 -Value "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\devenv.exe" 
-}
-
-Set-Alias -Name e -Value explorer.exe
-
 function touch {
-   if ((Test-Path -Path ($args[0])) -eq $false) {
-      set-content -Path ($args[0]) -Value ($null)
+   if (-not (Test-Path -Path $args[0])) {
+      Set-Content -Path $args[0] -Value $null
    }
-}
-
-function Copy-WorkingDir {
-   Get-Location | Select-Object -ExpandProperty Path | Set-Clipboard
-}
-
-# Set-Location Aliases
-function .. {
-   Set-Location .. 
-}
-
-function ... {
-   Set-Location ../.. 
 }
 
 # Remove-Item Aliases
@@ -113,16 +153,28 @@ function rmrf {
    Remove-Item -Recurse -Force $folder 
 }
 
-function tail {
-   param (
-      $file
-   )
-   Get-Content $file -Wait
-}
+function tail { param ( $file) Get-Content $file -Wait }
 
 function New-Guid {
    $guid = [Guid]::NewGuid()
-   Set-Clipboard $guid
-   Write-Host "Added New Guid to Clipboard: " -NoNewline
-   Write-Host $guid -ForegroundColor Blue
+   Write-Output $guid
+}
+
+# Visual Studio Aliases
+function vs17 {
+   $path = "C:\Program Files (x86)\Microsoft Visual Studio\2017\Community\Common7\IDE\devenv.exe"
+   if (Test-Path $path) { Start-Process $path $args } else { Write-Error "VS 2017 not found." }
+}
+function vs19 {
+   $path = "C:\Program Files (x86)\Microsoft Visual Studio\2019\Community\Common7\IDE\devenv.exe"
+   if (Test-Path $path) { Start-Process $path $args } else { Write-Error "VS 2019 not found." }
+}
+function vs22 {
+   $path = "C:\Program Files\Microsoft Visual Studio\2022\Community\Common7\IDE\devenv.exe"
+   if (Test-Path $path) { Start-Process $path $args } else { Write-Error "VS 2022 not found." }
+}
+
+# --- Planet Bingo Profile ---
+if (Test-Path "$PsScriptRoot\PB.Powershell_profile.ps1") {
+   .  "$PsScriptRoot\PB.Powershell_profile.ps1"
 }

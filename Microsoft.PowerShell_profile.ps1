@@ -40,7 +40,7 @@ $opts = {
             param($key, $arg)
             # Only import if it's missing (First run only)
             if (-not (Get-Module PSFzf)) {
-                Import-Module PSFzf -Scope CurrentUser -WarningAction SilentlyContinue -ErrorAction SilentlyContinue
+                Import-Module PSFzf -WarningAction SilentlyContinue -ErrorAction SilentlyContinue
             }
             # Run the command
             if (Get-Command Invoke-FzfReverseHistorySearch -ErrorAction SilentlyContinue) {

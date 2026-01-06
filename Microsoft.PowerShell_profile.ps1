@@ -109,6 +109,7 @@ function gpsup {
 # --- Utility Functions ---
 function cat { if (Get-Command bat -EA 0) { bat $args } else { Get-Content $args } }
 function e { explorer.exe $args }
+function sudo { if (Get-Command gsudo.exe -EA 0) { gsudo $args } else { Write-Host "gsudo.exe is not installed" } }
 # Set-Location Aliases
 function .. { Set-Location ..  }
 function ... { Set-Location ../..  }

@@ -12,34 +12,6 @@ $opts = {
         Set-PSReadLineOption -PredictionViewStyle InlineView
         Set-PSReadLineOption -Colors @{ InlinePrediction = '#8a8a8a' }
     }
-
-    # 2. Configure FZF (Only if installed)
-    if (Get-Command fzf -ErrorAction SilentlyContinue) {
-        
-        # Ctrl+R -> Lazy History Search
-        Set-PSReadLineKeyHandler -Chord Ctrl+r -ScriptBlock {
-            param($key, $arg)
-            # Only import if it's missing (First run only)
-            if (-not (Get-Module PSFzf)) {
-                Import-Module PSFzf -WarningAction SilentlyContinue -ErrorAction SilentlyContinue
-            }
-            # Run the command
-            if (Get-Command Invoke-FzfReverseHistorySearch -ErrorAction SilentlyContinue) {
-                Invoke-FzfReverseHistorySearch
-            }
-        }
-
-        # Ctrl+T -> Lazy Path Select
-        Set-PSReadLineKeyHandler -Chord Ctrl+t -ScriptBlock {
-            param($key, $arg)
-            if (-not (Get-Module PSFzf)) {
-                Import-Module PSFzf -Scope CurrentUser -WarningAction SilentlyContinue -ErrorAction SilentlyContinue
-            }
-            if (Get-Command Invoke-FzfSelectPath -ErrorAction SilentlyContinue) {
-                Invoke-FzfSelectPath
-            }
-        }
-    }
 }
 
 # Run this configuration immediately in the background
@@ -159,6 +131,21 @@ function vs22 {
 # --- Planet Bingo Profile ---
 if (Test-Path "$PsScriptRoot\PB.Powershell_profile.ps1") {
    .  "$PsScriptRoot\PB.Powershell_profile.ps1"
+}
+
+# --- PSFzf ---
+if (Get-Module -ListAvailable PSFzf -ErrorAction SilentlyContinue) {
+   Import-Module PSFzf -DisableNameChecking
+
+   # Set Keybindings
+   # Ctrl+t: File Search
+   # Ctrl+r: History Search
+   # Alt+c: Directory Search
+   Set-PsFzfOption `
+        -PSReadlineChordProvider 'Ctrl+t' `
+        -PSReadlineChordReverseHistory 'Ctrl+r' `
+        -PSReadlineChordSetLocation 'Alt+c' `
+        -ModulePrefix 'fzf'    
 }
 
 # --- Zoxide ---

@@ -29,7 +29,6 @@ $opts = {
         Set-PSReadLineOption -PredictionSource History
         Set-PSReadLineOption -PredictionViewStyle InlineView
         Set-PSReadLineOption -Colors @{ InlinePrediction = '#8a8a8a' }
-        Set-PSReadLineOption -EditMode Emacs
     }
 
     # 2. Configure FZF (Only if installed)

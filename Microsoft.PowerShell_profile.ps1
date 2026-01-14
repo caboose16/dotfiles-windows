@@ -1,21 +1,3 @@
-
-# --- Starship (Cached for Speed) ---
-$starshipCache = Join-Path $env:TEMP "starship_init.ps1"
-if (-not (Test-Path $starshipCache)) {
-    starship init powershell --print-full-init | Out-File $starshipCache -Encoding utf8 -Force
-}
-. $starshipCache
-
-# --- Zoxide (Cached for Speed) ---
-$zoxideCache = Join-Path $env:TEMP "zoxide_init.ps1"
-if (-not (Test-Path $zoxideCache)) {
-    zoxide init powershell --cmd z --hook pwd | Out-File $zoxideCache -Encoding utf8 -Force
-}
-. $zoxideCache
-
-# Starship and Zoxide Cache can be deleted with:
-# Remove-Item $env:TEMP\*_init.ps1
-
 # --- Async Background Config (PSReadLine + FZF) ---
 # We bundle these together because they both touch the input line.
 # Loading them in a background job keeps the prompt instant.
@@ -177,4 +159,16 @@ function vs22 {
 # --- Planet Bingo Profile ---
 if (Test-Path "$PsScriptRoot\PB.Powershell_profile.ps1") {
    .  "$PsScriptRoot\PB.Powershell_profile.ps1"
+}
+
+# --- Zoxide ---
+# Documentation recommends this being added last
+if (Get-Command zoxide -ErrorAction SilentlyContinue) {
+   Invoke-Expression (& { (zoxide init powershell | Out-String) })
+}
+
+# --- Starship ---
+# Documentation recommends this being added last
+if (Get-Command starship -ErrorAction SilentlyContinue) {
+   Invoke-Expression (&starship init powershell)
 }

@@ -1,21 +1,11 @@
-# --- Async Background Config (PSReadLine + FZF) ---
-# We bundle these together because they both touch the input line.
-# Loading them in a background job keeps the prompt instant.
-$opts = {
-    # 1. Configure PSReadLine
-    # We check if it is available and force import it to apply settings
-    if (Get-Module -ListAvailable PSReadLine) {
-        Import-Module PSReadLine -ErrorAction SilentlyContinue
-        
-        # Apply your settings
-        Set-PSReadLineOption -PredictionSource History
-        Set-PSReadLineOption -PredictionViewStyle InlineView
-        Set-PSReadLineOption -Colors @{ InlinePrediction = '#8a8a8a' }
-    }
+# --- PSReadLine ---
+if (Get-Module -ListAvailable PSReadLine) {
+   Import-Module PSReadLine
+   
+   Set-PSReadLineOption -PredictionSource History
+   Set-PSReadLineOption -PredictionViewStyle InlineView
+   Set-PSReadLineOption -Colors @{ InlinePrediction = '#8a8a8a' }
 }
-
-# Run this configuration immediately in the background
-$opts.Invoke()
 
 # --- git aliases ---
 $Global:GitLoaded = $false

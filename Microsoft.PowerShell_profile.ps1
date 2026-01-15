@@ -7,6 +7,12 @@ if (Get-Module -ListAvailable PSReadLine) {
    Set-PSReadLineOption -Colors @{ InlinePrediction = '#8a8a8a' }
 }
 
+# --- PowerShell Color Fixes ---
+# Fix unreadable directory colors in ls (Get-ChildItem) for Terminal Color Schemes
+$PSStyle.FileInfo.Directory = "`e[1;36m" # BoldCyan
+# Fix hard to read "Symbolic Link" color
+$PSStyle.FileInfo.SymbolicLink = "`e[1;35m"
+
 # --- git aliases ---
 $Global:GitLoaded = $false
 function git {

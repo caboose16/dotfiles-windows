@@ -26,6 +26,11 @@ function git {
     & git.exe @cmdArgs
 }
 
+# Prevent conflict with built-in aliases
+Remove-Alias gc -Force -ErrorAction SilentlyContinue
+Remove-Alias gl -Force -ErrorAction SilentlyContinue
+Remove-Alias gp -Force -ErrorAction SilentlyContinue
+
 function gs { git status $args }
 function ga { git add $args }
 function gc { git commit -v $args }

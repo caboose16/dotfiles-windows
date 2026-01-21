@@ -150,14 +150,15 @@ if (Get-Module -ListAvailable PSFzf -ErrorAction SilentlyContinue) {
         -ModulePrefix 'fzf'    
 }
 
-# --- Zoxide ---
-# Documentation recommends this being added last
-if (Get-Command zoxide -ErrorAction SilentlyContinue) {
-   Invoke-Expression (& { (zoxide init powershell | Out-String) })
-}
-
 # --- Starship ---
 # Documentation recommends this being added last
 if (Get-Command starship -ErrorAction SilentlyContinue) {
    Invoke-Expression (&starship init powershell)
+}
+
+# --- Zoxide ---
+# Documentation recommends this being added last
+# Do after Starship to avoid changes being overwritten
+if (Get-Command zoxide -ErrorAction SilentlyContinue) {
+   Invoke-Expression (& { (zoxide init powershell | Out-String) })
 }
